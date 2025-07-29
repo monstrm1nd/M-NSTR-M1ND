@@ -1,0 +1,124 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MØNSTR-M1ND</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        img {
+            max-width: 200px;
+            height: auto;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 10px 0;
+            color: #00ff00;
+        }
+        h2 {
+            font-size: 20px;
+            color: #00ff00;
+        }
+        section {
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+        p {
+            font-size: 16px;
+            color: #cccccc;
+        }
+        a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .darkweb-section {
+            display: none;
+        }
+        .darkweb-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="me.png" alt="MØNSTR-M1ND Logo">
+        <h1>MØNSTR-M1ND</h1>
+    </header>
+    <section id="home" class="active">
+        <h2>About</h2>
+        <p>The system is corrupt. It thrives on control, deception, and blind compliance. True freedom begins with deep awareness—understanding the code that binds us is the first step to breaking it. Knowledge is the weapon; anonymity is the shield.</p>
+        <h2>Log</h2>
+        <p>No traces. No tracking. Your presence here leaves no digital footprint unless I intend it to. Move freely, but tread carefully.</p>
+    </section>
+    <section id="darkweb" class="darkweb-section">
+        <p>In the shadows, truth persists.<br>
+        This is but a reflection.<br>
+        The real dwells deeper, where only the aware tread.<br>
+        <br>
+        http://tzvxu5eyexwtnvsfzjlmrufrd6q57wb6uiht2325cyo74pqhtwdr33id.onion/<br>
+        <br>
+        Enter if you know the way.<br>
+        Leave no trace.</p>
+    </section>
+    <footer>
+        <p><a href="#darkweb" onclick="document.getElementById('home').classList.remove('active'); document.getElementById('darkweb').classList.add('active');">Seek the shadow</a></p>
+    </footer>
+</body>
+</html>
